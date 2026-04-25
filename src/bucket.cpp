@@ -1,9 +1,17 @@
 #include "bucket.hpp"
 
-Bucket::Bucket(std::string name, int depth) : archiveName(name), localDepth(depth)
+Bucket::Bucket(std::string name, int depth, bool createNew)
+    : archiveName(name), localDepth(depth)
 {
-    std::ofstream file(FOLDER + archiveName);
-    file.close();
+    if (createNew)
+    {
+        std::ofstream file(FOLDER + archiveName);
+        if (file.is_open())
+        {
+            file << localDepth << std::endl;
+            file.close();
+        }
+    }
 }
 
 void Bucket::saveToDisk()
@@ -18,7 +26,6 @@ void Bucket::saveToDisk()
         }
         file.close();
     }
-    keys.clear();
 }
 
 void Bucket::loadFromDisk()
@@ -69,12 +76,10 @@ void Bucket::remove(int key)
 
 bool Bucket::search(int key)
 {
-    for (size_t i = 0; i < keys.size(); i++)
+    for (int k : keys)
     {
-        if (keys[i] == key)
-        {
+        if (k == key)
             return true;
-        }
     }
     return false;
 }

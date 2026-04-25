@@ -11,4 +11,5 @@ add_executable(HashIndex
     src/record.cpp
     src/bucket.cpp
     src/directory.cpp
+    src/hash_index.cpp
 )

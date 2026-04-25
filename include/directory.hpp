@@ -19,20 +19,24 @@ public:
     Directory(int pgInicial);
     ~Directory() = default;
 
-    int getIndex(int key);
+    void initNew();
 
-    std::string getBucketName(int key);
+    int getIndex(int key) const;
+
+    std::string getBucketName(int key) const;
+
+    std::string getBucketNameByIndex(int index) const;
 
     void duplicate();
 
     void updatePointer(int index, std::string newBucketName);
 
-    void saveDirectory();
+    void saveDirectory() const;
+
     void loadDirectory();
 
     int getGlobalDepth() const { return globalDepth; }
-
-    int getSize() const { return pointers.size(); }
+    int getSize() const { return (int)pointers.size(); }
 };
 
 #endif

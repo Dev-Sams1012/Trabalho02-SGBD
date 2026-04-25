@@ -17,22 +17,27 @@ private:
     int localDepth;
 
 public:
-    Bucket(std::string name, int depth);
+    Bucket(std::string name, int depth, bool createNew = false);
     ~Bucket() = default;
 
     void saveToDisk();
+
     void loadFromDisk();
 
     bool include(int key);
+
     void remove(int key);
+
     bool search(int key);
 
     std::vector<int> getKeys() const { return keys; }
     std::string getArchiveName() const { return archiveName; }
     int getLocalDepth() const { return localDepth; }
+    int getSize() const { return (int)keys.size(); }
 
     void setLocalDepth(int ld) { localDepth = ld; }
     void setArchiveName(std::string name) { archiveName = name; }
+    void clearKeys() { keys.clear(); }
 };
 
 #endif

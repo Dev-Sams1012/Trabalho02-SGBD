@@ -1,34 +1,40 @@
 #include "directory.hpp"
 #include <iostream>
 #include <cmath>
-#include <algorithm>
 
-Directory::Directory(int pgInicial) : globalDepth(pgInicial)
+Directory::Directory(int pgInicial) : globalDepth(pgInicial) {}
+
+void Directory::initNew()
 {
-    int numEntries = std::pow(2, globalDepth);
+    int numEntries = (int)std::pow(2, globalDepth);
     pointers.resize(numEntries);
-
     for (int i = 0; i < numEntries; ++i)
     {
         pointers[i] = "bucket_" + std::to_string(i) + ".txt";
     }
 }
 
-int Directory::getIndex(int key)
+int Directory::getIndex(int key) const
 {
     int mask = (1 << globalDepth) - 1;
     return key & mask;
 }
 
-std::string Directory::getBucketName(int key)
+std::string Directory::getBucketName(int key) const
 {
-    int index = getIndex(key);
-    return pointers[index];
+    return pointers[getIndex(key)];
+}
+
+std::string Directory::getBucketNameByIndex(int index) const
+{
+    if (index >= 0 && index < (int)pointers.size())
+        return pointers[index];
+    return "";
 }
 
 void Directory::duplicate()
 {
-    int oldSize = pointers.size();
+    int oldSize = (int)pointers.size();
     pointers.resize(oldSize * 2);
 
     for (int i = 0; i < oldSize; ++i)
@@ -47,7 +53,7 @@ void Directory::updatePointer(int index, std::string newBucketName)
     }
 }
 
-void Directory::saveDirectory()
+void Directory::saveDirectory() const
 {
     std::ofstream file(DIRECTORY_FILE);
     if (file.is_open())
