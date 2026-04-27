@@ -77,7 +77,7 @@ make
 
 ### Execução
 
-Antes de executar, certifique-se de que o arquivo `data/in.txt` está configurado corretamente com as operações desejadas e que o arquivo `data/bd-trab2 - dataset.csv` está presente na pasta `data/`.
+Antes de executar, certifique-se de que o arquivo `data/in.txt` está configurado corretamente com as operações desejadas e que o arquivo `data/bd-trab2 - dataset.csv` está presente na pasta `data/`, dentro da pasta `build/`.
 
 ```bash
 ./HashIndex

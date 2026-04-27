@@ -16,11 +16,11 @@ HashIndex::HashIndex(int initialDepth) : dir(initialDepth)
         test.close();
         dir.initNew();
 
-        for (int i = 0; i < dir.getSize(); ++i) //Cria os arquivos dos buckets iniciais
+        for (int i = 0; i < dir.getSize(); ++i) //Cria os arquivos dos buckets iniciais, um por vez
         {
             std::string name = dir.getBucketNameByIndex(i);
             Bucket b(name, initialDepth, true);
-        }
+        } //b é destruído a cada iteração, garantindo apenas um bucket em memória
 
         dir.saveDirectory();
     }
@@ -34,44 +34,47 @@ std::string HashIndex::newBucketName(int index) const //Gera um nome único para
 
 std::string HashIndex::splitBucket(const std::string &fullBucketName, int key) //Realiza a divisão do bucket
 {
-    Bucket old(fullBucketName, 0, false); 
-    old.loadFromDisk(); //Carrega o bucket cheio para realizar a divisão
+    int oldDepth, newDepth, newBucketDirIndex;
+    std::string newName;
+    std::vector<int> keysForOld, keysForNew; //Listas de destino das chaves, calculadas antes de qualquer bucket novo entrar em memória
 
-    int oldDepth = old.getLocalDepth();
-    int newDepth = oldDepth + 1; //Aumenta a profundidade local do bucket
+    { //Bloco 1: carrega o bucket antigo, separa as chaves e salva, sem criar o bucket novo
+        Bucket old(fullBucketName, 0, false);
+        old.loadFromDisk(); //Carrega o bucket cheio para realizar a divisão
 
-    int oldMask = (1 << oldDepth) - 1;
-    int base = old.getKeys()[0] & oldMask; //Calcula a base para os índices dos buckets após a divisão
+        oldDepth = old.getLocalDepth();
+        newDepth = oldDepth + 1; //Aumenta a profundidade local do bucket
 
-    int newBucketDirIndex = base | (1 << oldDepth);
-    std::string newName = newBucketName(newBucketDirIndex); //Gera um nome para o novo bucket com base no índice calculado
+        int oldMask = (1 << oldDepth) - 1;
+        int base = old.getKeys()[0] & oldMask; //Calcula a base para os índices dos buckets após a divisão
 
-    std::vector<int> allKeys = old.getKeys(); //Mantém uma cópia de todas as chaves do bucket antigo para redistribuição
-    allKeys.push_back(key); 
+        newBucketDirIndex = base | (1 << oldDepth);
+        newName = newBucketName(newBucketDirIndex); //Gera um nome para o novo bucket com base no índice calculado
 
-    old.clearKeys();
-    old.setLocalDepth(newDepth);
+        std::vector<int> allKeys = old.getKeys(); //Mantém uma cópia de todas as chaves do bucket antigo para redistribuição
+        allKeys.push_back(key);
 
-    {
-        Bucket nb(newName, newDepth, true); //Cria o novo bucket para receber as chaves redistribuídas
-    }
-
-    {
-        Bucket nb(newName, newDepth, false);
-        nb.loadFromDisk();
-
-        for (int k : allKeys) //Redistribui as chaves entre o bucket antigo e o novo com base no bit da profundidade local
+        for (int k : allKeys) //Separa as chaves em duas listas com base no bit da profundidade local
         {
             if ((k >> oldDepth) & 1)
-                nb.include(k);
+                keysForNew.push_back(k);
             else
-                old.include(k);
+                keysForOld.push_back(k);
         }
 
-        nb.saveToDisk();
-    }
+        old.clearKeys();
+        old.setLocalDepth(newDepth);
+        for (int k : keysForOld) //Reinsere no bucket antigo apenas as chaves que lhe pertencem
+            old.include(k);
+        old.saveToDisk();
+    } //old é destruído aqui — fora de memória antes do novo bucket ser criado
 
-    old.saveToDisk();
+    { //Bloco 2: cria e salva o novo bucket — o antigo já não está em memória
+        Bucket nb(newName, newDepth, true); //Cria o novo bucket para receber as chaves redistribuídas
+        for (int k : keysForNew) //Insere no novo bucket apenas as chaves que lhe pertencem
+            nb.include(k);
+        nb.saveToDisk();
+    } //nb é destruído aqui
 
     for (int i = 0; i < dir.getSize(); ++i) //Atualiza os ponteiros do diretório para os buckets divididos
     {
@@ -106,19 +109,19 @@ OpResult HashIndex::insert(int key)
             result.localDepth = b.getLocalDepth();
             b.saveToDisk();
             break;
-        }
+        } //b é destruído aqui em caso de sucesso
 
         int localDepth = b.getLocalDepth();
-        b.saveToDisk();
+        b.saveToDisk(); //Salva e descarta o bucket antes de realizar o split
 
-        if (localDepth == dir.getGlobalDepth())
+        if (localDepth == dir.getGlobalDepth()) //Se a profundidade local é igual à global, duplica o diretório
         {
             dir.duplicate();
             result.dirDuplicated = true;
             dir.saveDirectory();
         }
 
-        splitBucket(bucketName, key);
+        splitBucket(bucketName, key); //Divide o bucket e redistribui as chaves
     }
 
     return result;
@@ -133,7 +136,7 @@ OpResult HashIndex::remove(int key)
     Bucket b(bucketName, 0, false);
     b.loadFromDisk();
 
-    if (b.search(key))
+    if (b.search(key)) //Remove a chave se encontrada no bucket
     {
         b.remove(key);
         result.qtdAffected = 1;
@@ -145,7 +148,7 @@ OpResult HashIndex::remove(int key)
     b.saveToDisk();
 
     return result;
-}
+} //b é destruído aqui
 
 OpResult HashIndex::search(int key)
 {
@@ -156,11 +159,11 @@ OpResult HashIndex::search(int key)
     Bucket b(bucketName, 0, false);
     b.loadFromDisk();
 
-    if (b.search(key))
+    if (b.search(key)) //Se a chave está no bucket, busca o registro correspondente no CSV
     {
         result.qtdAffected = 1;
 
-        Record rec = Record::findInCSV(key);
+        Record rec = Record::findInCSV(key); //Lê o CSV uma linha por vez até encontrar o registro
         if (rec.getLinhaNum() != -1)
         {
             std::cout << "[BUS] " << rec.getLinhaNum()
@@ -171,7 +174,7 @@ OpResult HashIndex::search(int key)
     b.saveToDisk();
 
     return result;
-}
+} //b é destruído aqui
 
 int HashIndex::getGlobalDepth() const
 {
