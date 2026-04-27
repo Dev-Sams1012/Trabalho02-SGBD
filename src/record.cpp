@@ -6,7 +6,7 @@ Record Record::findInCSV(int key)
 {
     std::ifstream file(CSV_FILE);
 
-    if (!file.is_open())
+    if (!file.is_open()) //Verifica se o arquivo foi aberto corretamente
         return Record(-1, "");
 
     std::string line;
@@ -18,13 +18,13 @@ Record Record::findInCSV(int key)
         if (line.empty())
             continue;
 
-        size_t commaPos = line.find(',');
+        size_t commaPos = line.find(','); //Encontra a posição da vírgula
 
         int currentKey = std::stoi(line.substr(0, commaPos));
 
         if (currentKey == key)
         {
-            std::string texto = line.substr(commaPos + 1);
+            std::string texto = line.substr(commaPos + 1); //Extrai o texto após a vírgula
             if (!texto.empty() && texto.front() == '"')
                 texto = texto.substr(1, texto.size() - 2);
 

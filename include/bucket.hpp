@@ -6,8 +6,8 @@
 #include <fstream>
 #include <algorithm>
 
-#define BUCKET_SIZE 5
-#define FOLDER "data/"
+#define BUCKET_SIZE 5 //Tamanho máximo de chaves em um bucket
+#define FOLDER "data/" //Pasta onde os arquivos dos buckets serão armazenados
 
 class Bucket
 {

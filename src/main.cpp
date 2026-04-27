@@ -9,9 +9,9 @@
 
 int main()
 {
-    std::filesystem::create_directories("data");
+    std::filesystem::create_directories("data"); //Garante que a pasta "data" exista para armazenar os arquivos do diretório e buckets
 
-    std::ifstream inFile(INPUT_FILE);
+    std::ifstream inFile(INPUT_FILE); //Abre o arquivo de entrada para leitura
     if (!inFile.is_open())
     {
         std::cerr << "Erro: nao foi possivel abrir " << INPUT_FILE << std::endl;
@@ -30,9 +30,9 @@ int main()
 
     int initialDepth = std::stoi(firstLine.substr(3));
 
-    HashIndex idx(initialDepth);
+    HashIndex idx(initialDepth); //Inicializa o índice hash com a profundidade global inicial lida do arquivo
 
-    std::ofstream outFile(OUTPUT_FILE);
+    std::ofstream outFile(OUTPUT_FILE); //Abre o arquivo de saída para escrita dos resultados
     if (!outFile.is_open())
     {
         std::cerr << "Erro: nao foi possivel criar " << OUTPUT_FILE << std::endl;
@@ -42,7 +42,7 @@ int main()
     outFile << firstLine << "\n";
 
     std::string line;
-    while (std::getline(inFile, line))
+    while (std::getline(inFile, line)) //Lê cada linha do arquivo de entrada para processar as operações de inserção, remoção e busca
     {
         if (line.empty())
             continue;

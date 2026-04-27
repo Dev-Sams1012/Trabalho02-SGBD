@@ -8,13 +8,13 @@ Bucket::Bucket(std::string name, int depth, bool createNew)
         std::ofstream file(FOLDER + archiveName);
         if (file.is_open())
         {
-            file << localDepth << std::endl;
+            file << localDepth << std::endl; 
             file.close();
         }
     }
 }
 
-void Bucket::saveToDisk()
+void Bucket::saveToDisk() //Persiste no disco o conteúdo atualizado do bucket
 {
     std::ofstream file(FOLDER + archiveName);
     if (file.is_open())
@@ -28,9 +28,9 @@ void Bucket::saveToDisk()
     }
 }
 
-void Bucket::loadFromDisk()
+void Bucket::loadFromDisk() //Carrega do disco o conteúdo do bucket para a memória
 {
-    keys.clear();
+    keys.clear(); //Limpa as chaves antes da nova leitura
     std::ifstream file(FOLDER + archiveName);
     if (file.is_open())
     {
@@ -48,7 +48,7 @@ void Bucket::loadFromDisk()
     }
 }
 
-bool Bucket::include(int key)
+bool Bucket::include(int key) //Insere uma chave no bucket
 {
     if (search(key))
         return true;
@@ -62,7 +62,7 @@ bool Bucket::include(int key)
     return true;
 }
 
-void Bucket::remove(int key)
+void Bucket::remove(int key) //Remove uma chave do bucket
 {
     for (size_t i = 0; i < keys.size(); i++)
     {
@@ -74,7 +74,7 @@ void Bucket::remove(int key)
     }
 }
 
-bool Bucket::search(int key)
+bool Bucket::search(int key) //Busca uma chave no bucket
 {
     for (int k : keys)
     {

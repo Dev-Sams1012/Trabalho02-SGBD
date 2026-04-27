@@ -6,17 +6,17 @@ Directory::Directory(int pgInicial) : globalDepth(pgInicial) {}
 
 void Directory::initNew()
 {
-    int numEntries = (int)std::pow(2, globalDepth);
-    pointers.resize(numEntries);
+    int numEntries = (int)std::pow(2, globalDepth); //Calcula o número de entradas com base na profundidade global
+    pointers.resize(numEntries); //Redimensiona o vetor de ponteiros de acordo
     for (int i = 0; i < numEntries; ++i)
     {
-        pointers[i] = "bucket_" + std::to_string(i) + ".txt";
+        pointers[i] = "bucket_" + std::to_string(i) + ".txt"; //Inicializa os ponteiros para os buckets
     }
 }
 
 int Directory::getIndex(int key) const
 {
-    int mask = (1 << globalDepth) - 1;
+    int mask = (1 << globalDepth) - 1; //Extrai os least significant bits do hash para determinar o índice do bucket
     return key & mask;
 }
 
@@ -45,7 +45,7 @@ void Directory::duplicate()
     globalDepth++;
 }
 
-void Directory::updatePointer(int index, std::string newBucketName)
+void Directory::updatePointer(int index, std::string newBucketName) //Atualiza o ponteiro do bucket no diretório
 {
     if (index >= 0 && index < (int)pointers.size())
     {

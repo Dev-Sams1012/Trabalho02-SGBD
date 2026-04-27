@@ -7,7 +7,7 @@
 #include <string>
 #include <vector>
 
-struct OpResult
+struct OpResult //Estrutura para armazenar o resultado das operações
 {
     bool dirDuplicated;
     int globalDepth;
@@ -20,9 +20,9 @@ class HashIndex
 private:
     Directory dir;
 
-    std::string newBucketName(int index) const;
+    std::string newBucketName(int index) const; //Gera um nome único para o novo bucket
 
-    std::string splitBucket(const std::string &fullBucketName, int key);
+    std::string splitBucket(const std::string &fullBucketName, int key); //Realiza a divisão do bucket
 
 public:
     HashIndex(int initialDepth);

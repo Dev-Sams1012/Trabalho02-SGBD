@@ -5,7 +5,7 @@
 #include <fstream>
 #include <sstream>
 
-#define CSV_FILE "data/bd-trab2 - dataset.csv"
+#define CSV_FILE "data/bd-trab2 - dataset.csv" //Caminho para o arquivo CSV
 
 class Record
 {
@@ -20,7 +20,7 @@ public:
     int getLinhaNum() const { return linhaNum; }
     std::string getLinhaTexto() const { return linhaTexto; }
 
-    static Record findInCSV(int key);
+    static Record findInCSV(int key); //Busca um registro no arquivo CSV com base na chave
 };
 
 #endif

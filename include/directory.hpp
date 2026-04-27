@@ -7,13 +7,13 @@
 #include <cmath>
 
 #define FOLDER "data/"
-#define DIRECTORY_FILE "data/diretorio.txt"
+#define DIRECTORY_FILE "data/diretorio.txt" //Arquivo para armazenar o diretório
 
 class Directory
 {
 private:
     int globalDepth;
-    std::vector<std::string> pointers;
+    std::vector<std::string> pointers; //Vetor de ponteiros para os buckets
 
 public:
     Directory(int pgInicial);
